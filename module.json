@@ -8,8 +8,11 @@
             "name": "Sgodd"
         }
     ],
-    "minimumCoreVersion": "13",
-    "compatibleCoreVersion": "13",
+    "compatibility": {
+        "verified": "13",
+        "minimum": "13",
+        "maximum": "13"
+    },
     "styles": ["styles/mp-journals.css"],
     "url": "https://github.com/Sgodd/fvtt-styles",
     "manifest": "https://github.com/Sgodd/fvtt-styles/releases/latest/download/module.json",
