@@ -1,11 +1,7 @@
 import copy from "rollup-plugin-copy";
 
 export default {
-    input: "src/index.js", // We'll create a minimal entry point
-    output: {
-        file: "dist/bundle.js",
-        format: "es",
-    },
+    input: "0.js",
     plugins: [
         copy({
             targets: [
