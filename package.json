@@ -3,27 +3,19 @@
     "version": "1.0.0",
     "description": "Foundry VTT Journal Entry Styling Module",
     "scripts": {
-        "build": "npm run clean && rollup -c",
+        "build": "rm -rf dist && rollup -c",
+        "build:prod": "rm -rf dist && NODE_ENV=production rollup -c",
         "dev": "rollup -c -w",
-        "clean": "rimraf dist",
-        "dist": "npm run build && echo Build complete! Check dist/ folder for distribution files."
+        "clean": "rm -rf dist"
     },
     "devDependencies": {
         "rollup": "^4.9.0",
         "rollup-plugin-copy": "^3.5.0",
-        "@rollup/plugin-node-resolve": "^15.2.3",
-        "rimraf": "^5.0.5"
+        "@rollup/plugin-node-resolve": "^16.0.1"
     },
     "files": [
         "dist/"
     ],
-    "keywords": [
-        "foundry-vtt",
-        "foundryvtt",
-        "css",
-        "styles",
-        "journal"
-    ],
-    "author": "Your Name",
+    "author": "Sgodd",
     "license": "MIT"
 }
