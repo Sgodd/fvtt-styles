@@ -1,0 +1,92 @@
+name: Create Release
+
+on:
+  push:
+    branches: [master]
+    tags: ["v*"]
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Extract version and create unique tag
+        id: version
+        run: |
+          VERSION=$(jq -r '.version' module.json)
+          SHORT_SHA=$(git rev-parse --short HEAD)
+          UNIQUE_TAG="v${VERSION}-${SHORT_SHA}"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "tag=$UNIQUE_TAG" >> $GITHUB_OUTPUT
+          echo "sha=$SHORT_SHA" >> $GITHUB_OUTPUT
+
+      - name: Check if tag exists
+        id: check_tag
+        run: |
+          if git rev-parse --verify refs/tags/${{ steps.version.outputs.tag }} >/dev/null 2>&1; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Setup Node.js
+        if: steps.check_tag.outputs.exists == 'false'
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+          cache: "npm"
+
+      - name: Install dependencies
+        if: steps.check_tag.outputs.exists == 'false'
+        run: npm ci
+
+      - name: Build TypeScript
+        if: steps.check_tag.outputs.exists == 'false'
+        run: npm run build:prod
+
+      - name: Create module archive
+        if: steps.check_tag.outputs.exists == 'false'
+        run: |
+          # Create the zip file from the dist folder contents
+          cd dist
+          zip -r ../fvtt-styles.zip .
+          cd ..
+
+      - name: Create Release
+        if: steps.check_tag.outputs.exists == 'false'
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.version.outputs.tag }}
+          release_name: FVTT Styles v${{ steps.version.outputs.version }} (${{ steps.version.outputs.sha }})
+          body: |
+            ## fvtt styles ${{ steps.version.outputs.version }}
+          draft: false
+          prerelease: false
+
+      - name: Upload module.json
+        if: steps.check_tag.outputs.exists == 'false'
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./dist/module.json
+          asset_name: module.json
+          asset_content_type: application/json
+
+      - name: Upload module archive
+        if: steps.check_tag.outputs.exists == 'false'
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./fvtt-styles.zip
+          asset_name: fvtt-styles.zip
+          asset_content_type: application/zip

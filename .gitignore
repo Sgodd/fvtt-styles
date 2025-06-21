@@ -1,0 +1,20 @@
+# Build output
+dist/
+
+# Node modules
+node_modules/
+
+# Development files
+demo.html
+README.md
+
+# Logs
+*.log
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Editor files
+.vscode/
+.idea/
